@@ -8,6 +8,8 @@ class CategoryAdmin(admin.ModelAdmin):
 
 class PostAdmin(admin.ModelAdmin):
     readonly_fields=("created","updated")
+    list_display=('title','author','published')
+    ordering=('author','published')
 
 admin.site.register(Category,CategoryAdmin)
 admin.site.register(Post,PostAdmin)
