@@ -1,0 +1,329 @@
+manage.py: gestiona el projecte a traves del terminal
+settings.py: arxiu de configuracion del projecte/apps
+url.py: script de configuracio de les url de les pagines
+wsgi.py: script de configuracio del projecte per la produccio
+
+1-Crear Projecte
+django-admin startproject nom_projecte
+
+2-Configuracio arxiu settings.py
+bbdd, idioma, etc
+
+3-Inicialitzar/sincronitzar bbdd
+python manage.py migrate
+NOTA:si hi han apps que sacaben de crear i aquestes apps requereixen un bbdd doncs django et dira que cal migrar, com al principi dun projecte, on tenim les apps per defecte:admin,auth,contentypes i sessions, que django et diu que si no es mihra poden haber-hi problemes amb aquestes apps. En canvi no et diu res de les apps:messages i staticfiles, ja que, son apps que no requereixen bbdd.
+
+APPS (Aplicacions internes que implementen funcionalitats especifiques)
+Per defecte, django te creades diferents apps que ajuden en diverses funcions:
+admin: gestiona el panell dadministrador
+auth: serveix per autenticar els usuaris
+contenttypes, sessions, messages, staticfiles (no ho se encara)
+
+4-Creacio d'Apps
+python manage.py startapp nom_app
+NOTA:Es generen molts fitxers, pero ara el que ens interessa es el fitxer views.py
+
+5-Creacio de la vista
+Ens anem al fitxer views i es aquest lencarregat de gestionar les vistes de lapp.
+Dins el fitxer views.py importem el metode HttpResponse, que es troba al mateix modul django.shortcuts. Aquest metode ens permet contestar a una peticcio Http i retornar un codi(per exemple un codi Html)
+Es una manera de introduir codi html a la brava HttpResponse("codi html") i llavors el veura.
+Per exemple:
+from django.shortcuts import render,HttpResponse
+def home(request):
+    return(HttpResponse(html_base+"<h1>Pagina Principal</h1><h2>Portada</h2>"))
+Ara he fet una vista, pero li haig de dir a Django a quina URL ha danar aquesta vista
+6-Creacio de la URL per la vista
+Fitxer urls.py de la carpeta del projecte principal. Seguir les instruccions que et marquen per a Function Views, ja que es la que utilitzarem. En el futur veurem daltres
+6.1.-Importo el fitxer views.py de la aplicacio (paquet) amb nom (p.ex core)
+from core import views
+6.2.-Crear un nou path(direccio url) dins la llista de urlpatterns que tenim a larxiu urls.py
+path('',views.home,name='home'),
+6.3.-Administracio de les URLs mes professional
+Es una altra manera de organitzar les URL. Si ho fem com hem dit fins ara, cada vista una linia ens quedaria el fitxer urls.py  ple a petar de urls ja que cada app tindria les seves i podria ser un caos. La app Admin ja te les urls organitzades d'aquesta manera. Es a dir Admin te diferents vistes i les registro totes al fitxer urls.py com a admin.site.urls. Ara explicare com organitza les url la app Admin.
+    6.3.1.- Creo un fitxer urls.py dins la app. En aquest fitxer posare totes les vistes de la app.
+    6.3.2.- Mantinc la estructura del fitxer urls.py generat automaticament en la carpeta del projecte. Es a dir. La llista de urlpatterns=[], i la importacio de la classe de django que serveix per gestionar les url, django.urls path.
+    6.3.3.- Inclueixo tots els path generats anteriorment(vamos copia/pega dun lloc a laltre), tenint en compte que aquest cop no importo des de la carpteta core si no que ja hi soc, per tant, poso: from . import views
+    6.3.4.- Al url del projecte surten unes instruccions de com configurar les url. Fins ara haviem seguit les instruccions del primer apartat, Function views. Ara seguirem les instruccions del tercer apartat URLconf. Importarem la funcio include, que com diuen les instruccions estant a django.urls, per tant: from django.urls import path,include. Aixo ho farem al fitxer urls.py de la carpeta del projecte.
+    6.3.5.- Cridem al fitxer urls.py creat manualment de la app on tenim tots els views de la app (en el cas exemple core). Tal i com indiquen les instruccions, despres d'impoortar la funcio include, cridem el fitxer urls.py de la app amb: path('core/', include('core.urls')), . El problema es que com anoto 'core/', el que faig es posar la paraula core dins la url, es a dir domini/core/about (per exemple). Per a canviar-ho, i deixar-ho com abans, només haig de treure 'core/' i deixar-ho en blanc, es a dir, '', per tant, quedaria:path('', include('core.urls')),
+
+7-Crear enllaços a cada pagina dacces a totes les pagines del projecte (pots fer una base comu per totes)
+
+NOTA:Crear la vista directament amb larxiu views, posant codi html i llegintlo amb HttpResponse es practic per a ensenyar com funciona, pero no ens es massa practic si volem mostrar pagines dhtml,css3,javascript ven treballades. Per a fer-ho, treballarem amb els templates, que son arxius html, enlloc darxius python llegint html cru.
+
+8-Modificar arxiu views.py i fer que llegeixi el codi html desde un arxiu html (template) a traves de la metode render, enlloc del propi arxiu views.py mitjancant el metode HtmlResponse
+8.1.-Crear carpeta templates dins de la carpeta de la aplicacio (per exemple core). Crear una subcarpeta dins de templates amb el nom de la aplicacio(per a un millor ordre) a on posarem totes les plantilles de la aplicacio (les plantilles estan fetes en codi html)
+8.2.-Crees larxiu html amb la vista dessitjada i el guardes a la subarpeta dela carpeta templates
+8.3.-Enllaces la funcio on es troba el request del arxiu views.py amb la plantilla creada (html template)
+#def home(request):
+#    return(HttpResponse(html_base+"<h1>Pagina Principal</h1><h2>Portada</h2>"))
+#     return(render(request,"core/home.html"))
+NOTA:Si nomes ho deixem aqui django no detecta la ruta fins lhtml, per a fer-ho s'ha dafegir la aplicacio nova al arxiu settings.py
+8.4.-Afegir la nova aplicacio al arxiu settings.py per a que django pugui detectar les rutes a on es troben els templates (suposo que tambe per daltres coses), (hauria de mirar el per que de la disposicio de subcarpetes:templates->nom_app)
+'nom_app',
+
+9.-Si tenim codi repetit, com seria per exemple el menu de navegacio per accedir a les diferents pagines web, el millor es crear una plantilla base i cada plantilla especifica potcridar la base en qualsevol situacio i per tant aprofitar aquesta plantilla per totes les plantilles que vulguis.
+Per a fer-ho, generem un html base, amb tot el codi comu. Llavors, a alla a on volguem posar les parts especifiques de cada template que vulgui incloure el html base hi posem un template tag, que son tags de templates que permeten introduir llogica de programacio dins del html.Hi han molts templates tags a django, per exemple. Tambe haurem d'anotar amb el template que inclou el template plantilla, el tag del template plantilla, indicant quina es la part a afegir al template plantilla, es a dir, ens cal anotar el template tag al template plantilla (indicant la part daquest a on safegiran dades) i al template que incorpora el template plantilla (indicant quina part es la que safegeix al template plantilla)
+    {% block content %}{% endblock %}, que ens permet definir un bloc de contingut amb un nom. Es a dir que cada template plantilla pot posar el text que vulgui. La paraula content es pot canviar per la que es vulgui, es el nom duna variable
+    Per altra banda, per a que un template agafi com a plantilla un altra template, haurem de indicar-ho daquesta manera: 
+{% extends 'core/base.html' %}
+entenent que el template plantilla es diu base.html i es troba per defecte al directori projecte/core/templates/core
+
+10.-Modificacio URL dels templates. Fins ara hem anotat les url dels templates directamente amb les url en cru, pero, realment, des dels templates hauriem de cridar no als url en cru sino, directament al nom dels url definits al arxiu url.py de la carpeta principal del projecte.
+Per exemple
+Tenim definit aquest url al arxiu urls.py
+path('about-me/',views.about,name='about-me'),
+la ruta en cru es:/about-me
+views.about indica a on es troba la vista a seleccionar (i de la vista al template, model,etc)
+name='about-me' es el nom amb que lem de cridar des del template tag url, que es la manera correcte.
+Es a dir desde un template el cridariem aixi:
+{% url 'about-me' %}
+D'aquesta manera encara que canvii la url real no la haurem de canviar a la resta de llocs nomes al arxiu urls.py
+
+11.- Unir front-end amb back-end.
+11.1.- Posar els template tags al front end. Com ja tinc la estructura creada amb les seccions dinamiques que vull, lunic que haig de fer es traslladar aquestes seccions al front-end, es a dir, template tags, etc.
+11.2.- Situar els arxius estatics del front end de cara a que quan la vista cridi als templates aquest puguin cridar als seus respectiis arxius estatics (css3, javascript, images,etc)
+    El problema es que el servidor de desenvolupament de django, aquest que estem executant amb manage.py runserver, no es capac de manegar arxius estatics, daixo sencarregaria engings o apache(o qualsevol altre servidor) en fase de desplegament de la app. Aixo no vol dir que en fase de debug no ho poguem fer, nomes que cal fer un parell de configuracions mes per a aconseguir que el servidor de desenvolupament de django sigui capac de servir aquesta mena de fitxers.Per fer-ho:
+    11.2.1.-Creem un subdirectori dins la app que estem treballant que es dira static. I seguint la llogica dels templates, dins aquest subdirectori static en crearem un altre amb el nom de la app (p.ex core)
+
+    ATENCIO!!! LLOGICA DELS DIRECTORIS TEMPLATES I STATIC:
+    Django recopila tots els subdirectoris dins de cada aplicacio que estan dins la carpeta templates i static, i els agrupa en una carpeta amb els mateixos noms (templates i static) i a dins de cadascuna estan totes les carpetes de cada app--->es per aixo que seguim aquesta estructura (core->templates-core)
+
+    11.2.2.-Afegim els subdirectoris que continguin els fitxers estatics (p.ex. css,js,img,etc), amb tots els fitxers estatics dins
+
+    11.2.3.-Ara em de dir-li al template que importi els fitxers estatics per a que els pugui carregar a la pagina web (si no nestem utilitzant ho haurem dafefir a cada temllate)
+    {% load static %}
+    Es posa al head (inici) just despres del title i abans dels links als fitxers estatics. Davant de cada url hem de posar (entre les cometes que segueixen href,style,src,etc)
+href="{% static 'core/...' %}"
+scr="{% static 'core/...' %}"
+style="background-image: url('{% static 'core/...' %}')"
+
+NOTA: {{request.path}} es una variable interna del template que si la poso a la brava en un template m'indicara el path de cada template, es a dir: /, /about-me/, /portfolio/, etc
+NOTA2: Exemple amb el template tag IF:
+{% if request.path != "/"}
+    <hr>
+{% endif %}
+
+12.- MODELS: A Django hi ha un potent sistema de mapejat ORM (Model Objecte Relacional), aixo vol dir que si seguim les pautes de Django, podem mapejar objectes a la base de dades, de manera que quan es genera una instancia d'una classe, aquesta queda guardada a la base de dades automaticament en forma de registres. Nomes això, sino que si fem modificacions d'aquesta instancia aquestes modificacions queden guardades a la base de dades automaticament. Les Classes que maneguen aquests objectes persistents s'anomenen MODELS. Son Classes enllaçades a la base de dades. Nomes cal que quan creem una classe dins el fitxer models.py, que es on tindré tots els models, aquestes classes heredin: class Nom_Model(models.Model):, per a enllaçar tots els objectes creats a la base de dades a partir d'aquesta classe. Aquesta classe representarà una TAULA dins de la BASE DE DADES, cada ATRIBUT d'aquesta CLASSE sera una COLUMNA de la TAULA de la BASE DE DADES. Cada atribut dins de la classe pot ser definit com una cadena de text, un sencer,etc, i ho definirem a partir de la clase heretada models.Model.
+    12.1.- Crear o utilitzar una app (python manage.py startapp nom_app)
+    12.2.- Definir un model. Al fitxer models.py de la app, aquest fitxer es el fitxer a on anotarem els nostres models (que recordem que son classes que maneguen(creen,editen,etc) els objectes persistents guardats a la base de dades).
+    12.3.- En el cas que la app sigui de nova creacio, afegir-la al arxiu settings.py de la carpeta principal
+    12.4.- Fer una migracio. Quan s'ha creat un nou model per a la base de dades, cal informar a django d'aquests canvis i enllaçar el nou model a la base de dades. Per a fer-ho:
+        12.4.1.- Crear el fitxer de migracio dels models a enllaçar a la base de dades (es crea un fitxer que alhora servira com a backup per a recuperar un estadi anterior). Per a fer-ho: python manage.py makemigrations nom_app
+        12.4.2.- Aplicar aquesta migracio a la base de dades. Per a fer-ho: python manage.py migrate nom_app
+
+NOTA: Una vegada esta creat un model, aquesta bbdd es pot manegar a traves de diferents templates i views, i llògicament, també es pot utilitzar el panell d'administracio per a poder-ho manegar.
+13.- ASSOCIAR MODEL BBDD A TEMPLATE/VIEW
+    13.1.- TEMPLATE/VIEW PANELL ADMINISTRADOR
+        13.1.1.- Donar d'alta usuari administrador.
+            Executa: python manage.py createsuperuser
+        13.1.2.- Accedir al panell de control del administrador
+            Com veiem al arxiu url.py de la carpeta del projecte general veiem que, a mes de tenir configurades unes url amb les nostres vistes, tenim una url creada per defecte que es troba a /admin/. Llogicament podem canviar-ho per qualsevol altre, pero ara com ara treballarem sense fer-ho(i probablement no ho canviarem mai)
+        13.1.3.- Afegir models al panell d'administrador
+            A cada app creada hi ha un fitxer admin.py on hem d'afegir tots els models creats que volem que siguin gestionats des del panell d'administracio.
+            Per a fer-ho, hem de fer dues coses:
+                a) Dins el fitxer admin.py importem el model. Com que el fitxer de models de la propia app esta en el mateix directori doncs ho podem fer aixi:
+                    from .models import nom_model
+                b) Registrem el model dins el panell administrador.
+                    Per a fer-ho, dins del propi fitxer admin.py de la app on es troba el model a gestionar al panell d'administrador, afegim la seguent instruccio:
+                        admin.site.register(nom_model)
+        13.1.4.- PERSONALITZAR EL PANELL D'ADMINISTRADOR
+            Si entrem al panell d'administrador, i volem afegir una imatge a algun registre de la nostra bbdd, de la nostra app veiem que encara que el seleccionem ens surt un error. A mes, al introduir un nom del registre ens surt un nom per defecte diferent.
+            En el cas del nom aixo es llogic ja que django no te cap manera de saber quin és el nom a no ser que li especifiquem. Per a definir el nom per defecte de la app dins el panell d'administrador anem a: directori_app/apps.py i veiem que (en aquest cas el nom de la app es Portfolio):
+
+        class PortfolioConfig(AppConfig):
+            name = 'portfolio'
+
+            La variable name indica el nom de la app per defecte que surt a django que es llogicament aquell nom que hem donat alhora de crear la app, es a dir, el nom del directori de la app, pero si volem canviar-ho, hem d'utilitzar un camp extes (una variable heretada de la classe AppConfig) que s'anomena verbose_name, que el que fa es posar un nom públic a la nostra app.
+
+        class PortfolioConfig(AppConfig):
+            name = 'portfolio'
+            verbose_name= 'Portafoli'
+
+            Quan fem això estem afegint una configuració extesa a django, que per defecte no es fa servir. Per tant, hem de dir-li a django que em d'utilitzar aquesta configuració. Per a fer-ho hem de modificar l'arxiu del directori del projecte principal settings.py i al lloc on tenim anotades les aplicacions, enlloc de posar el nom de la app (en el cas d'exemple portfolio) haurem d'anotar la ruta a on es troba la classe de configuracio on tenim les modificacions. En el cas d'exemple seria 'portfolio.apps.PortfolioConfig'
+            Per tant, l'arxiu settings.py quedaria aixi:
+
+        INSTALLED_APPS = [
+            'django.contrib.admin',
+            'django.contrib.auth',
+            'django.contrib.contenttypes',
+            'django.contrib.sessions',
+            'django.contrib.messages',
+            'django.contrib.staticfiles',
+            'core',
+            'portfolio.apps.PortfolioConfig',
+        ]
+
+            Ens passa el mateix amb el nom dels models de la app. Es a dir, agafa el nom de la classe del model. El que passa es que per conveni aquests noms s'haurien de posar en angles, com la resta de classes, funcions etc d'un programa, pero en canvi de cara al usuari ho hauria de veure en la seva llengua. En el cas anterior, per a fer-ho hem modificat un arxiu de configuracio del panell d'administrador associat a la app i despres indicant el canvi al arxiu settings.py. Per a modificar els noms dels models que surten per defecte al panell d'administrador, hem d'afegir una subclasse dins cada classe dels models inclossos a la app, on s'anotin les diferents metadades descriure. en aquest cas quedaria aixi:
+
+        class Project(models.Model):
+            title=models.CharField(max_length=200)
+            description=models.TextField()
+            image=models.ImageField()
+            created=models.DateTimeField(auto_now_add=True) #al atribut es guarda la data de creacio del objecte de manera automatica
+            updated=models.DateTimeField(auto_now=True) #al atribut es guarda la data de la ultima modificacio del object
+
+            class Meta:
+                verbose_name="projecte"
+                verbose_name_plural="projectes" #si no especifiquem aquesta variable, per defecte afegeix una S al nom definit (per defecte o al verbose_name)
+         
+            Dins d'aquesta subclasse es poden afegir altres dades de configuracio de la visualitzacio del model, com per exemple la ordenacio de cada registre, com es poden ordenar per diversos camps alhora, la variable es una llista on anotes l'ordre d'ordeacio de cada camp, en el cas exemple ho ordenarem per data de creacio:
+
+            class Meta:
+                verbose_name="projecte"
+                verbose_name_plural="projectes" #si no especifiquem aquesta variable, per defecte afegeix una S al nom definit (per defecte o al verbose_name)
+                ordering=["-created"] # posem un guio - per indicar que el ordre ha de ser a la inversa, en aquest cas no volem que sigui del registre mes antic al mes nou sino al contrari, del mes nou al mes antic
+
+            Per altra banda, el nom per defecte de cada registre no esta definit i per defecte t'anota el nom del model amb la paraula object (ja que llogicament es un objecte) i amb un numero. Per a dir-li a django que utilitzi lgun dels atributs de la classe del model, hem d'utilitzar el classic metode especial __str__. Es a dir, en el cas exemple hi han molts atributs i utilitzarem l'atribut title.
+
+            def __str__(self):
+                return(self.title)
+
+            Finalment, cadascun dels atributs del model, per llogica de programacio estan en angles. Django, per defecte agafa els noms dels atributs com a noms publics per a mostrar directamentcom en els casos anteriors. Per a modificar-ho, puc afegir l'atribut verbose_name dins la definicio de cada atribut, especificant el nom public de cada atribut del model. És a dir, en el cas exemple:
+
+        class Project(models.Model):
+            title=models.CharField(max_length=200,verbose_name="Títol")
+            description=models.TextField(verbose_name="Descripció")
+            image=models.ImageField(verbose_name="Imatge")
+            created=models.DateTimeField(auto_now_add=True,verbose_name="Data Creació") #al atribut es guarda la data de creacio del objecte de manera automatica
+            updated=models.DateTimeField(auto_now=True,verbose_name="Data Modificació") #al atribut es guarda la data de la ultima modificacio del object
+
+            Per altra banda, els camps de data i hora automatitzats, que s'autoactualitzen cada moment de manera automàtica, no apareixen al panell del administrador. Sembla ser que es l'atribut auto_now el que fa que no apareguin. Això es degut a que django per defecte no els fa apareixer per a que no puguin ser modificats, ja que son camps que s'actualitzen automaticament. Però podem mostrar-lo com a camps de Sols Lectura.
+            Per a fer-ho hem d'extendre la configuració base del administrador. I fem el següent:
+                a) Anem al fitxer admin.py de la app.
+                b) Creem una classe abans de registrar el model. El nom pot ser el que volguem, però per conveni s'utilitza el següent nom_modelAdmin. I fem que heredi d'admin ModelAdmin. És a dir: class nom_modelAdmin(admin.ModelAdmin):
+                c) Ara redefinim un atribut heretat de admin.ModelAdmin que es diu: readonly_fields. Que es una tupla. En el nostre exemple posarem: readonly_fields=("created","updated")
+                d) Finalment, hem d'afegir la configuracio extesa del administrador en el registre d0aquesta. És a dit, abans teniem admin.site.register(nom_model) i ara anotarem admin.site.regiter(nom_model,nom_modelAdmin)
+
+                En el nostre exemple, l'arxiu nom_app/admin.py quedaria aixi
+
+        from django.contrib import admin
+        from .models import Project
+
+        class ProjectAdmin(admin.ModelAdmin):
+            readonly_fields=("created","updated")
+
+        # Register your models here.
+        admin.site.register(Project,ProjectAdmin)
+
+            Ara sí, finalment, ens trobem que el fitxer que seleccionem dins el registre, ens surt un error.
+            Per defecte, django no serveix fitxers, a mes, quan selecciones un fitxer per defecte te'n guarda a la arrel del projecte, cosa que es molt perillosa. ELS FITXERS QUE PUGEN ELS USUARIS SON FITXERS MULTIMEDIA, i aquests haurien d'estar en una carpeta especifica per això.
+
+            Per a fer-ho tot:
+                a) Creem una carpeta que anomenarem media dins la carpeta principal del projecte (és a dir, on trobem l'arxiu manage.py).
+                b) Ara hem de indicar a django que hem creat un directori media a on volem que s'emmagatzemin tots els fitxers media dels usuaris del projecte. Per a fer-ho anem al fitxer settings.py del directori del projecte. I al final de tot, despres de la declaració de la variable del URL dels fitxers estatics, definirem MANUALMENT la configuració dels fitxers media, començant per la URL. Definirem una variable: MEDIA_URL='/media/' # indiquem la direccio publica, MEDIA_ROOT=os.path.join(BASE_DIR,"media") # indiquem la ruta completa on django ha de trobar el fitxers. Això fa que tots els fitxers pujats pels usuaris es guardin al directori creat per nosaltres anomenat media, pero, necesitem mes organització, ja que hi hauran molts models, i per tant, molts fitxers. Per a dir-li a django que els fitxers pujats a una base de dades gestionada per un model concret, els afegirem a una carpeta creada dins el directori media pero a una carpeta amb el nom del model, i que es creara automaticament. És a dir: media/model/fitxer1. Per a fer-ho, anem a la carpeta de la app on tenim el model que manega la base de dades i al atribut que gestioni el fitxer (en el cas del exemple, image), li afegim un atribut, upload_to='nom_app' (o el nom que volguem). És a dir, el model exemple quedaria de la seguent manera:
+
+        class Project(models.Model):
+            title=models.CharField(max_length=200,verbose_name="Títol")
+            description=models.TextField(verbose_name="Descripció")
+            image=models.ImageField(verbose_name="Imatge",upload_to="projects")
+            created=models.DateTimeField(auto_now_add=True,verbose_name="Data de Creació") #al atribut es guarda la data de creacio del objecte de manera automatica
+            updated=models.DateTimeField(auto_now=True,verbose_name="Data d'Edició") #al atribut es guarda la data de la ultima modificacio del object
+
+            class Meta:
+                verbose_name="projecte"
+                verbose_name_plural="projectes" #si no especifiquem aquesta variable, per defecte afegeix una S al nom definit (per defecte o al verbose_name)
+                ordering=["-created"] # posem un guio - per indicar que el ordre ha de ser a la inversa, en aquest cas no volem que sigui del registre mes antic al mes nou sino al contrari, del mes nou al mes antic
+
+            def __str__(self):
+                return(self.title)
+
+            Per afegir noves columnes al panell d'administracio per a mostrar mes parametres de cada instancia generada d'un model, hem de modificar el parametre heretat de admin.ModelAdmin list_display (es una tupla), i li podem afegir els noms (entre cometes '') de cada parametre que vulguis mostrar al llistat dins el panell administració.
+            També podem ordenar les dades, per defecte (es poden canviar facilment en el propi panell d'administracio). Les podem ordenar per diferents parametres alfabeticament i per ordre, primer un i despres un altre. Hem de modificar el parametre ordering (es una tupla), heretat de la classe admin.ModelAdmin.
+            Podem afegir una opcio que sigui una barra de cerca. Es fa de la mateixa manera que en els casos anteriors, el nom del parametre es search_fields, i nomes haig d'indicar per quins parametres buscaran. ATENCIO! En el cas d'afegir un parametre d'un model relacionat (com podria ser author o categories) és una mica diferent. S'ha de dir el nom i despres ajuntar-lo amb doble guio baix al nom real da la BBDD on pertanyen, per exemple, en el cas exemple el parametre author heretat de django realment es diu username a la BBDD, per tant, seria author__username, de categories que seria categories__name
+            Tambe podem utilitzar una jerarquia, que ens permeti navegar(filtrar) entre les diferents instancies de manera mes eficient, per exemple utilitzem una jerarquia de dates de creacio, que ens permet visualitzar(filtrar) les instancies en funcio de la data de creacio. Ho podem fer com en els casos anterior, pero en aquest, el parametre es diu date_hierarchy(es una cadena de text)
+            Una opcio molt interesant es poder filtrar per alguna dada comuna en diferents instancies (com per exemple el nom del autor de la instancia, o les categories). Per a fer-ho utilitzem la mateixa metodologia anterior, per el nom del parametre es diu list_filter(es una tupla).
+            Finalment, si volem afegir una parametre que es una llista d'elements, a les columnes, tindrem problemes, es a dir, si vull afegir el parametre categories, el programa no ho permet, suposo que perque podrien haver-hi instancies amb multiples resultats i d'altres sense i això ho faria ingobernable. Per a sol·lucionar-ho hem d'afegir un metode dins la categoria (model) i aquest metode retornara una cadena amb tots els elements de la llista d'elements (separats per coma per exemple). Es a dir, primer li afegeixo el nom que vulgui a la tupla de list_display, despres creo un metode dins la classe que registra el model al panell administrador, amb el nom que he creat. Com per conveni els noms es posen en angles, els hauré de traduir, per a fer-ho, selecciono un parametre descrit per defecte que s'anomena short_description(es un cadena), i li poso el nom que vulgui, en el cas d'exemple seria Categorías
+
+            Per exemple:
+from django.contrib import admin
+from .models import Category,Post
+
+# Register your models here.
+
+class CategoryAdmin(admin.ModelAdmin):
+    readonly_fields=("created","updated")
+
+class PostAdmin(admin.ModelAdmin):
+    readonly_fields=("created","updated")
+    list_display=('title','author','published','post_categories')
+    ordering=('author','published')
+    search_fields=('title','content','author__username','categories__name')
+    date_hierarchy='published'
+    list_filter=('author__username','categories__name')
+
+    def post_categories(self,obj): #obj fa referencia a cada objecte (sembla una paraula reservada)
+        return(", ".join([c.name for c in obj.categories.all().order_by('name')])) #com que lobjecte #al metode post_categories li crido del objecte creat, selecciono les categories (que ja les tinc importades per a Registra el model Category), i d'aquestes selecciono totes les instancies amb all() 
+
+    post_categories.short_description="Categorías"
+
+admin.site.register(Category,CategoryAdmin)
+admin.site.register(Post,PostAdmin)
+
+            NOTA INFORMATIVA SOBRE SERVIR FITXERS ESTATICS I FITXERS MEDIA
+            Per a servir els fitxers estatics i els fitxers media, hem de configurar l'arxiu settings.py de la nostra carpeta del projecte:
+
+            MEDIA_ROOT es la ruta absoluta al direcotri que contindra els nostres fitxers media. Per exemple, MEDIA_ROOT = "/User/Timmy/Sites/Pho/root/media/".
+            MEDIA_URL aquesta es la ruta relativa a la URL del navegador que sera utilitzada quan volguem accedir als fitxers media des del navegador. Per exemple, MEDIA_URL = "media/"
+            STATIC_ROOT = a MEDIA_ROOT
+            STATIC_URL = a MEDIA_URL
+
+            Ara ja tenim ordenats els nostres fitxers multimedia, pero continuem sense poder fer que django els serveixi. Per a fer-ho hem de fer el següent:
+                a) Importem l'arxiu settings.py de la carpeta del projecte al fitxer urls.py tambe de la carpeta del projecte. Ho fem aixi: from django.conf import settings
+                b) Ara ja podem preguntar dins del propi fitxer urls.py de la carpeta del projecte si al fitxer settings.py de la carpeta del projecte la variable DEBUG esta a TRUE o no. Es a dir, posem al fitxer urls.py el següent:
+
+        if settings.DEBUG:
+            from django.conf.urls.static import static #aixo ens permetra servir fitxers estatics
+            # Ara li haurem de dir a django (desde el fitxer urls.py que si algu vol fa un request a la ruta /projecte/media/.../nom_fitxer doncs que li permeti accedir. Ho fem aixi:
+            urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+            És a dir, estem servint els fitxers media com si fossin estatics, per a efectes pràctics és el mateix. Això és un petit truc per a poder servir fitxers media en entorn DEBUG=True
+            NOTA: AIXÒ NOMÉS SERVEIX FITXERS MEDIA EN ENTORN DEBUG
+        13.1.5.- En el cas que calgui posar les vistes a la aplicacio on es trobi el model, així com els templates. Enrecordar-se de modificar a on senyalen les url del fitxer urls.py del directori principal del projecte. Finalment, al fitxer urls.py enrecordar-se'n que no es pot importar dos fitxers amb el mateix nom, es a dir, com volem importar els dos fitxers views.py haurem de anomenar-los d'una altra manera: p.ex. from portfolio import views as portfolio_views
+        13.1.6.- Importar els models de la app al fitxer views de la propia app (sempre i quan haguem fet el pas anterior). Per a fer-ho, doncs anotem al inici del propi fitxer views.py from .models import Project (es exactament el mateix que varem fer amb el panell del administrador.ARA JA PODEM IMPORTAR TOTS ELS MODELS AL FITXER VIEWS I PER TANT OMPLIR ELS TEMPLATES AMB LES DADES DE LA PROPIA BASE DE DADES
+        13.1.7.- Cridar als models dins del fitxer models.py gracies al model ORM de django. Per exemple, projects=Project.objects.all(). El que fa es crido al model Project dins el fitxer models.py i despres, crido en temps dexecucio cada objecte creat a partir del model Project. Amb objects creo una especie de llista interna, i el metode d'objects all() que cridara a tots els objectes que te el model Project. Ara ja tenim les dades que ens calen de la base de dades gestionada pels models. CRIDO ALS MODELS DINS DEL FITXER models.py DES DEL FITXER views.py, ja que es des d'aquest fitxer que passare les dades de la BBDD als templates a traves del render(). Per exemple, aquest es un fitxer views.py
+
+from django.shortcuts import render
+from .models import Project
+
+# Create your views here.
+def portfolio(request):
+    projects=Project.objects.all()
+    return(render(request,"portfolio/portfolio.html",{'projects':projects}))
+
+        Estic important la classe Project del fitxer de models.py (per tant el fitxer que manega la BBDD) selecciono tots els objectes creats fins ara amb: projects=Project.objects.all(), i els guardo a la variable projects (que es una llista), i despres la passo com a paramatre a la funcio render (des del template podre cridar totes les dades importades de la BBDD), el parametre es un diccionari on poso una clau que vulgui i com a valor el que hagi extret de la base de dades, en el cas del exemple extrec una llista amb tots els objectes creats fins al moment, ho faig així: return(render(request,"portfolio/portfolio.html",{'projects':projects}))
+
+        13.1.8.- Importem les dades extretes de la BBDD gestionades pels models, al template. Ho fem a partir d'un tercer parametre del render, anomenat diccionari de context. Asignarem un nom per cada variable que volguem exportar al template que volguem renderitzar. Per exemple:return(render(request,"portfolio/portfolio.html",{'projects':projects})).NOTA: Si volem mostrar el contingut d'una variable de context dins del template, un cop exportada al template, la fem renderitzar cridant-la entre dobles {{}}. Per exemple: {{projects}}. NOTA2:En el cas de mostrar una imatge es molt convenient utilitzar uns submetode intern de la imatge que es diu URL, ja que labuscara a la ubicacio que haguem definit manualment.
+        EXEMPLE:
+        {% block content %}
+            {% for project in projects %}
+                <!-- Proyecto -->
+                <div class="row project">    	
+                    <div class="col-lg-3 col-md-4 offset-lg-1">
+                        <img class="img-fluid" src="{{project.image.url}}" alt="">
+                    </div>
+                    <div class="col-lg-7 col-md-8">
+                        <h2 class="section-heading title">{{project.title}}</h2>     
+                        <p>{{project.description}}</p>
+                        <!--<p><a href="http://google.com">Mes informació</a></p>-->
+                    </div>
+                </div>
+            {% endfor %}
+        {% endblock %}
+
+14.- RELACIO KEY FOREIGN I MANY TO MANY
+    KEY FOREIGN: Permet relacionar una instancia amb una altra (tant de classes diferents com de la mateixa)
+    Per exemple:
+from django.contrib.auth.models import User #importem el model que genera django automaticament per a gestionar els usuaris del projecte
+
+author=models.ForeignKey(User,verbose_name="Autor",on_delete=models.CASCADE) #el parametre on_delete es obligat de posar, ja que indica a django, en cas de que s'esborri la instancia(Autor en el cas de l'exemple), què s'ha de fer.
+    - Si posem models.CASCADE, el que fa és esborrar totes les instancies que provenen d'un model que conte un atribut de Clau Forania (models.ForeignKey) amb el parametre on_delete com a models.CASCADE i que contenen l'autor esborrat. Es a dir, si jo tinc 30 post del autor Xavi, i esborro el autor Xavi, totes aquelles instancies procedents de models que contenen una clau foranea i aquesta es autor i, a mes, l'atribut Autor conte el parametre on_delete=models.CASCADE, seran esborrades.
+    - Si posem models.PROTECT, el que fara es simplement esborrar l'autor i sortira com a null, i no s'esborrara la instancia. En aquest cas, cal tenir els parametres d'aquest parametre, null i blank com a True.
+    MANY T MANY: Permet relacionar moltes instancies a una altra (tant de classes diferents com de la mateixa).
+    Per exemple:
+categories=models.ManyToManyField(Category,verbose_name="Categorias")
+
+    NOTA: Per alguna raó pots importar la data de publicació directament sense utilitzar auto_now, o auto_now_add. No entenc perque no fer-ho així i a vegades ho haig de fer així:
+from django.utils.timezone import now
+
+published=models.DateTimeField(verbose_name="Fecha de Publicación",default=now)
+
