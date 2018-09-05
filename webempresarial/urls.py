@@ -22,9 +22,11 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     # Paths Core
     path('', include('core.urls')),
+    # Paths Blog
+    path('blog/', include('blog.urls')),
     # Paths Services
     path('services/', include('services.urls')),
-]
+    ]
 
 if settings.DEBUG:
     from django.conf.urls.static import static
