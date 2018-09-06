@@ -11,11 +11,11 @@
                     <div class="col-xl-9 mx-auto">
                         <div class="cta-innerv text-center rounded">
                             <h2 class="section-heading mb-5">
-                                <span class="section-heading-upper">{{post.updated}}</span>
+                                <span class="section-heading-upper">{{post.published|date:"SHORT_DATE_FORMAT"}}</span>
                                 <span class="section-heading-lower">{{post.title}}</span>
-                            </h2>
+                             </h2>
                             <p class="mb-0">
-                            <img class="mx-auto d-flex rounded img-fluid mb-3 mb-lg-0" src="{% static 'core/img/products-01.jpg' %}" alt="">
+                            <img class="mx-auto d-flex rounded img-fluid mb-3 mb-lg-0" src="{{post.image.url}}" alt="">
                             </p>
                             <p class="mb-0 mbt">
                             {{post.content}}

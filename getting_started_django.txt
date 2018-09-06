@@ -327,3 +327,4 @@ from django.utils.timezone import now
 
 published=models.DateTimeField(verbose_name="Fecha de Publicación",default=now)
 
+NOTA:Per modificar el format duna data, ho ppdem fer daquest manera:{{post.published|date:"SHORT_DATE_FORMAT"}}
