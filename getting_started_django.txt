@@ -311,6 +311,7 @@ def portfolio(request):
         {% endblock %}
 
     NOTA ESPAIS EN BLANC A CONTENT: Django per defecte, considera que els espais en blanc son contingut no segur. Per tant, quan posem un en un text linies en blnc dins la pagina, django, per defecte ens les treu. Basicament, per solucionar-ho canviem els salts de linia per tags <hr>-->hi ha un filtre que se li pot afegir al template tag que tho permet fer:{{post.content|linebreaks}}
+    NOTA Atributs multiples variables: Si vull renderitzar un atribut duna instancia, i aquest atribut te multiples valors (com si fos una llista o una tupla, etc) cal especificar a django que vol que "naveguis" dins latribut per a poder seleccionar un, alguns o tots els valors del atribut. Per a fer-ho hem de cridar al metode all() per a que ens extregui tots els valors. Per exemple, el cas de les categories dun post (poden ser general, ofertes, etc), i seria aixi: {{post.categories.all}} aixo ens retornaria una llista de catefories, per a treuren una a una hauriem de posar un for: {% for categoria in post.categories.all}{% endfor %}
 
 14.- RELACIO KEY FOREIGN I MANY TO MANY
     KEY FOREIGN: Permet relacionar una instancia amb una altra (tant de classes diferents com de la mateixa)

@@ -21,7 +21,9 @@
                             {{post.content|linebreaks}}
                             </p>
                             <p class="mb-0 mbt">
-                            <span class="section-heading-under">Publicado por <em><b>{{p.author}}</b></em> en <em><a href="#" class="link">General</a>, <a href="#" class="link">Ofertas</a></em></span>
+                            <span class="section-heading-under">Publicado por <em><b>{{p.author}}</b></em> en
+                                <!--<em><a href="#" class="link">General</a>, <a href="#" class="link">Ofertas</a></em></span>-->
+                                {% for categoria in post.categories.all}{{post.categories.all}}{% endfor %}
                             </p>
                         </div>
 
