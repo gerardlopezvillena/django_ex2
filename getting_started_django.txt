@@ -114,7 +114,7 @@ D'aquesta manera encara que canvii la url real no la haurem de canviar a la rest
 
     11.2.2.-Afegim els subdirectoris que continguin els fitxers estatics (p.ex. css,js,img,etc), amb tots els fitxers estatics dins
 
-    11.2.3.-Ara em de dir-li al template que importi els fitxers estatics per a que els pugui carregar a la pagina web (si no nestem utilitzant ho haurem dafefir a cada temllate)
+    11.2.3.-Ara em de dir-li al template que importi els fitxers estatics per a que els pugui carregar a la pagina web (si no nestem utilitzant ho haurem dafefir a cada template)
     {% load static %}
     Es posa al head (inici) just despres del title i abans dels links als fitxers estatics. Davant de cada url hem de posar (entre les cometes que segueixen href,style,src,etc)
 href="{% static 'core/...' %}"

@@ -5,7 +5,7 @@
 {% block content %}
     {% load static %}
     {% for post in category.get_posts.all %}
-    <!--% for post in category.post_set.all %}-->
+    <!--% for post in category.post_set.all %-->
         <section class="page-section cta">
             <div class="container">
                 <div class="row">
@@ -26,7 +26,7 @@
                                 <!--<em><a href="#" class="link">General</a>, <a href="#" class="link">Ofertas</a></em></span>-->
                                 <em>
                                     {% for category in post.categories.all %}
-                                        <a href="{% 'category' category.id %}" class="link">{{category.name}}</a>{% if not forloop.last %},{% endif %}
+                                        <a href="{% url 'category' category.id %}" class="link">{{category.name}}</a>{% if not forloop.last %},{% endif %}
                                     {% endfor %}
                                 </em>
                             </span>
