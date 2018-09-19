@@ -361,3 +361,10 @@ from django.utils.timezone import now
 published=models.DateTimeField(verbose_name="Fecha de Publicación",default=now)
 
 NOTA:Per modificar el format duna data, ho ppdem fer daquest manera:{{post.published|date:"SHORT_DATE_FORMAT"}}
+
+15.- PROCESSADORS DE CONTEXT
+Quan afegim un diccionari de context a la vista, el que estem fent es ampliant el context del template. El que vull dir es que hi ha un context per defecte on hi ha, per exemple aquest diccionari predefinit, i encara que no hi afegim cap variable, el diccionari existeix. El request.path, seria un altre exemple.
+
+Aixo ho explico perque hi ha cops, com per exemple els links que es posen a sota d'una plana web, i que es troben a totes les pagines, que enlloc de configurarho per cada vista, potser mes convenient ampliar aixo que anomenem context, per a que desde qualsevol template es pugui cridar (ja se que hi han altres maneres, com per exemple que larxiu base cridi al model social i anoti les variables directament dalla, pero es nomes un exemple).
+
+
